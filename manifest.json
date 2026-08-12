@@ -11,16 +11,24 @@
     "bot_user": {
       "display_name": "opp-bot",
       "always_online": true
-    }
+    },
+    "slash_commands": [
+      {
+        "command": "/opportunity",
+        "description": "Submit an opportunity to #hc-opportunities",
+        "usage_hint": "[title]",
+        "should_escape": false
+      }
+    ]
   },
   "oauth_config": {
     "scopes": {
-      "bot": ["channels:history", "chat:write", "im:history", "groups:history"]
+      "bot": ["channels:history", "chat:write", "im:history", "groups:history", "reactions:read", "commands"]
     }
   },
   "settings": {
     "event_subscriptions": {
-      "bot_events": ["message.channels", "message.groups", "message.im"]
+      "bot_events": ["message.channels", "message.groups", "message.im", "reaction_added"]
     },
     "interactivity": {
       "is_enabled": true

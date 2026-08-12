@@ -13,61 +13,74 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN
 });
 
-// Listens to incoming messages that contain "hello"
-app.message('hello', async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
-  await say({
-    blocks: [
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": `Hey there <@${message.user}>!`
-        },
-        "accessory": {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Click Me"
-          },
-          "action_id": "button_click"
-        }
-      }
-    ],
-    text: `Hey there <@${message.user}>!`
-  });
-});
+app.command('/opportunity', async ({ ack, body, client, logger,  }) => {
+  await ack();
 
-// Sends a section block with datepicker when someone reacts with a 📅 emoji
-app.event('reaction_added', async ({ event, say }) => {
-  if (event.reaction === 'calendar') {
-    await say({
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: 'Pick a date for me to remind you',
-          },
-          accessory: {
-            type: 'datepicker',
-            action_id: 'datepicker_remind',
-            initial_date: '2019-04-28',
-            placeholder: {
-              type: 'plain_text',
-              text: 'Select a date',
+  try {
+    const result = await client.views.open({
+
+      trigger_id: body.trigger_id,
+
+      view: {
+        type: 'modal',
+        callback_id: 'view_1',
+        title: {
+          type: 'plain_text',
+          text: 'Submit Opportunity',
+        },
+
+        submit: {
+          type: 'plain_text',
+          text: 'Submit',
+        },
+
+        close: {
+          type: 'plain_text',
+          text: "Cancel"
+        },
+
+        blocks: [
+          {
+
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: 'Announce an opportunity with the application link!'
             },
           },
-        },
-      ],
-    });
-  }
-});
 
-app.action('button_click', async ({ body, ack, say }) => {
-  // Acknowledge the action
-  await ack();
-  await say(`<@${body.user.id}> clicked the button`);
+          {
+            type: 'input',
+            block_id: 'input_c',
+            label: {
+              type: 'plain_text',
+              text: 'Submit',
+            },
+            element: {
+              type: 'plain_text_input',
+              action_id: 'dreamy_input',
+              multiline: true,
+            }
+          }
+        ]
+
+            // accessory: {
+            //   type: 'button',
+            //   text: {
+            //     type: 'plain_text',
+            //     text: 'Submit',
+            //   },
+            //   action_id: 'button_abc'
+            // }
+      }
+
+    });
+    logger.info(result);
+  }
+  catch (error) {
+    console.error(error.data?.response_metadata?.messages);
+    logger.error(error);
+  }
 });
 
 (async () => {
